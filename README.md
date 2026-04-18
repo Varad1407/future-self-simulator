@@ -12,10 +12,13 @@ A machine learning-powered web app that predicts your future based on your daily
 ## 📸 Screenshots
 
 ### 🏠 Home Screen
-(Add screenshot here
+![Home](home.png)
 
 ### 📊 Results Screen
-(Add screenshot here)
+![Results](result.png)
+
+### 📊 Results (Detailed View)
+![Results Detailed](result1.png)
 
 ---
 
