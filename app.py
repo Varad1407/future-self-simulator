@@ -1,14 +1,48 @@
 import streamlit as st
 import matplotlib.pyplot as plt
-import pickle
 import numpy as np
 import pandas as pd
 import os
+from sklearn.ensemble import RandomForestRegressor
 
 # -------------------------
-# LOAD MODEL
+# TRAIN MODEL (NO model.pkl)
 # -------------------------
-model = pickle.load(open("model.pkl", "rb"))
+@st.cache_resource
+def train_model():
+    data = []
+
+    for _ in range(1000):
+        sleep = np.random.randint(3, 10)
+        workout = np.random.randint(0, 120)
+        work_hours = np.random.randint(0, 12)
+        screen_time = np.random.randint(0, 12)
+        diet = np.random.randint(1, 10)
+
+        score = (
+            (20 if 7 <= sleep <= 8 else 10 if sleep >= 6 else 0) +
+            min(workout / 5, 20) +
+            min(work_hours * 2, 20) +
+            (20 if screen_time <= 2 else 10 if screen_time <= 4 else 0) +
+            diet * 2
+        )
+
+        data.append([sleep, workout, work_hours, screen_time, diet, score])
+
+    df = pd.DataFrame(data, columns=[
+        "sleep", "workout", "work_hours", "screen_time", "diet", "score"
+    ])
+
+    X = df.drop("score", axis=1)
+    y = df["score"]
+
+    model = RandomForestRegressor()
+    model.fit(X, y)
+
+    return model
+
+
+model = train_model()
 
 # -------------------------
 # PAGE CONFIG
@@ -30,7 +64,7 @@ screen_time = st.sidebar.slider("Screen Time (hours)", 0, 12, 6)
 diet = st.sidebar.slider("Diet Quality (1-10)", 1, 10, 5)
 
 # -------------------------
-# FUTURE FUNCTION
+# SIMULATION FUNCTION
 # -------------------------
 def simulate(score, days):
     growth = score * days * 0.05
@@ -49,9 +83,7 @@ def simulate(score, days):
 # -------------------------
 if st.button("Simulate My Future"):
 
-    # -------------------------
     # ML PREDICTION
-    # -------------------------
     input_data = np.array([[sleep, workout, work_hours, screen_time, diet]])
     current_score = int(model.predict(input_data)[0])
 
